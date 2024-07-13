@@ -18,6 +18,13 @@ public class godofredo extends Robot
 	double gunTurnAmt; // quantidade de movimento da arma ao procurar o adversário
 	String trackName; // nome do robo sendo mapeado
 
+	// DECLARAÇÃO DE INDEPENDÊNCIA *DEFENSIVA*
+	boolean check; //Controle da movimentação,
+	//usado para que o robô não vire caso
+	//haja um oponente no seu caminho.
+
+	double move;  //Define quanto o robô se move.
+	
 	public void run() {
 
 		while (true) {
@@ -35,8 +42,27 @@ public class godofredo extends Robot
 			 */
 			if (!ofensiva) { // walls (?)
 
-				for (int i = 0; i <= 50; i++) {
-					System.out.println("DEFENSIVA");
+				// Determina o tamanho da arena para definir quantidade da movimentação.
+				move = Math.max(getBattleFieldWidth(), getBattleFieldHeight());
+
+				//Inicializa o check em falso.
+				check = false;
+
+				//Vira para a parede direita e aponta o robô para cima.
+				turnLeft(getHeading() %90 );
+				//Se move na medida delimitada pelo tamanho da arena
+				ahead(move);
+				check = true;
+
+				turnGunRight(90);
+				turnRight(90);
+
+				while(true) {
+					check = true;
+					ahead(move);
+					check = false;
+
+					turnRight(90);
 				}
 
 			} // fecha DEFENSIVA
@@ -89,9 +115,7 @@ public class godofredo extends Robot
 		 */
 		if (!ofensiva) { // walls (?)
 
-			for (int i = 0; i <= 50; i++) {
-				System.out.println("DEFENSIVA");
-			}
+			fire(2);
 
 		} // fecha DEFENSIVA
 

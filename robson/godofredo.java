@@ -40,7 +40,7 @@ public class godofredo extends Robot
 			/**
 			 *    DEFENSIVA
 			 */
-			if (!ofensiva) { // walls (?)
+			if (!ofensiva) { // walls
 
 				// Determina o tamanho da arena para definir quantidade da movimentação.
 				move = Math.max(getBattleFieldWidth(), getBattleFieldHeight());
@@ -63,6 +63,14 @@ public class godofredo extends Robot
 					check = false;
 
 					turnRight(90);
+
+					// sempre checando se há outros robos
+					if (getOthers() == 1) {
+						System.out.println("LAST STANDING TRIBUTE");
+						ofensiva = true;
+						break;
+					}
+
 				}
 
 			} // fecha DEFENSIVA
@@ -199,16 +207,14 @@ public class godofredo extends Robot
 	 * onHitByBullet: What to do when you're hit by a bullet
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
-		// Replace the next line with any behavior you would like
-		back(10);
+		// ??????????????????????????????????
 	}
 	
 	/**
 	 * onHitWall: What to do when you hit a wall
 	 */
 	public void onHitWall(HitWallEvent e) {
-		// Replace the next line with any behavior you would like
-		back(20);
+		// ???????????????????????????????????
 	}
 
 	/**

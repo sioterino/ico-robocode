@@ -1,181 +1,179 @@
 package robson;
 import robocode.*;
+import robocode.util.Utils;
 import java.awt.Color;
 
 // API help : https://robocode.sourceforge.io/docs/robocode/robocode/Robot.html
 
 /**
- * Ofensivatracker - a robot by (your name here)
- */
-public class godofredo extends Robot
-{
-	boolean ofensiva = false; // define estratégia de operação: defensiva / ofensiva
+ * ROBSON GODOFREDO EUGÊNIO - walls defensivo / tracker ofensivo bot por:
+ * 												   INGRIDY, SANT e SOFIA.
+ * 
+ * ROBSON = filho da glória ilustre (germanico).
+ * GODOFREDO = deus da paz (germanico).
+ * EUGÊNIO = nobre (grego/latino).
+ **/
+public class godofredo extends AdvancedRobot {
 
+	boolean ofensiva = false; // define estratégia de operação: defensiva / ofensiva.
 
-	// DECLARAÇÃO DE INDEPENDÊNCIA *OFENSIVA*
-	int count = 0; // conta quanto tempo procura pelo adversário
-	// durante a procura do adversário
-	double gunTurnAmt; // quantidade de movimento da arma ao procurar o adversário
-	String trackName; // nome do robo sendo mapeado
+	// declaração de independência *DEFENSIVA*
+	boolean check; // controle da movimentação, usado para que o robô
+				   // não vire caso haja um oponente no seu caminho.
+	double move;   // define quanto o robô se move.
 
-	// DECLARAÇÃO DE INDEPENDÊNCIA *DEFENSIVA*
-	boolean check; //Controle da movimentação,
-	//usado para que o robô não vire caso
-	//haja um oponente no seu caminho.
+	// declaração de independência *OFENSIVA*
+    double enemyX;
+    double enemyY;
+    double enemyHeading;
+    double enemyVelocity;
 
-	double move;  //Define quanto o robô se move.
-	
+    /**
+     * RUN: comportamento padrão do GODOFREDO.
+     */
 	public void run() {
 
-		while (true) {
-			
-			System.out.print(getOthers());
+		while (true) { // abre laço de repetição RUN.
 
-			// caso sobre apenas um robo no campo
+			// TESTANDO quantos adversários ainda estão na arena.
 			if (getOthers() == 1) {
-				System.out.println("LAST STANDING TRIBUTE");
+				System.out.println("LAST STANDING TRIBUTE: ofensiva!");
 				ofensiva = true;
-			}
+			} else {
+				System.out.println("DEFENSIVA!");
+			} // fecha laço condicional (getOthers == 1).
 
 			/**
 			 *    DEFENSIVA
 			 */
-			if (!ofensiva) { // walls
+			if (!ofensiva) { // WALLS!
 
-				// Determina o tamanho da arena para definir quantidade da movimentação.
+				// LIMITA o movimento do robo de acordo com o tamanho da arena.
 				move = Math.max(getBattleFieldWidth(), getBattleFieldHeight());
 
-				//Inicializa o check em falso.
+				// inicializa o check em falso.
 				check = false;
 
-				//Vira para a parede direita e aponta o robô para cima.
+				// vira para a parede direita e aponta o robô para cima. 
 				turnLeft(getHeading() %90 );
-				//Se move na medida delimitada pelo tamanho da arena
+				// se move na medida delimitada pelo tamanho da arena
 				ahead(move);
+				
+				// gira a arma para ESQUERDA, depois o GODOFREDO.
 				check = true;
-
 				turnGunRight(90);
 				turnRight(90);
 
-				while(true) {
+				while(true) { // laço de repetição WALLS.
 					check = true;
 					ahead(move);
 					check = false;
-
 					turnRight(90);
 
-					// sempre checando se há outros robos
+					// TESTANDO quantos adversários ainda estão na arena.
 					if (getOthers() == 1) {
-						System.out.println("LAST STANDING TRIBUTE");
+						System.out.println("LAST STANDING TRIBUTE: ofensiva!");
 						ofensiva = true;
 						break;
-					}
+					} // fecha laço condicional (getOthers == 1).
 
-				}
+				} // fecha laço de repetição WALLS.
 
 			} // fecha DEFENSIVA
+
+
 
 			/**
 			 *    OFENSIVA
 			 */
-			if (ofensiva) { // tracker
+			if (ofensiva) { // TRACKER!
 
-				// preparo da arma
-				trackName = null; // mapeamento nulo
-				setAdjustGunForRobotTurn(true); // gira a arma/radar junto do tanque
-				gunTurnAmt = 10; // arma gira 10 graus
+		        // Set radar and gun to turn independently of the robot's body
+		        setAdjustRadarForRobotTurn(true);
+		        setAdjustGunForRobotTurn(true);
+		        
+		        // Robot main loop
+		        while (true) {
+		            // Keep turning the radar to scan for robots
+		            setTurnRadarRight(360);
+		            execute();
+		        }
+				
+			} // fecha OFENCIVA TRACKER.
+			
+		} // fecha laço de repetição RUN.
+		
+	} // fecha método RUN.
 
-				while (true) {
-					// gira a arma/radar para procurar um robo
-					turnGunRight(gunTurnAmt);
 
-					count++; // quantas vezes tentou mapear
-
-					// ESQUERDA caso 2 tentativas falhas de mapear adversário
-					if (count > 2) {
-						gunTurnAmt = -10;
-					}
-
-					// DIREITA caso 5 tentativas falhas de mapear adversário
-					if (count > 5) {
-						gunTurnAmt = 10;
-					}
-
-					// ENCONTRE OUTRO ADVERSÁRIO caso 10 tentativas falhas de mapear adversário
-					if (count > 11) {
-						trackName = null; // (onScannedRobot)
-					}
-				}
-
-			} // fecha OFENCIVA
-
-		} // fecha laço de repetição
-
-	}
 
 	/**
-	 * onScannedRobot: What to do when you see another robot
+	 * onScannedRobot: comportamento do GODOFREDO ao scannear um bot.
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 
 		/**
-		 *    DEFENSIVA
-		 */
-		if (!ofensiva) { // walls (?)
+		*    DEFENSIVA : COUNTER CLOCKWISE WALLS!
+		*/
+		if (!ofensiva) { // WALLS!
 
 			fire(2);
+			// caso exista um bot na próxima parede, impede o
+			// movimendo do GODOFREDO até que esse bot se mova.
+			if (check) {
+				scan();
+			}
 
-		} // fecha DEFENSIVA
+		} // fecha DEFENSIVA WALLS.
+
+
 
 		/**
-		 *    OFENSIVA
-		 */
-		if (ofensiva) { // tracker
+		*    OFENSIVA: ADVENCED TRACKER BOT!
+		*/
+		if (ofensiva) { // TRACKER!
 
-			// If we have a target, and this isn't it, return immediately
-			// so we can get more ScannedRobotEvents.
-			if (trackName != null && !e.getName().equals(trackName)) {
-				return;
-			}
+			// Calculate enemy's position
+	        double enemyBearing = getHeading() + e.getBearing();
+	        enemyX = getX() + e.getDistance() * Math.sin(Math.toRadians(enemyBearing));
+	        enemyY = getY() + e.getDistance() * Math.cos(Math.toRadians(enemyBearing));
+	        enemyHeading = e.getHeading();
+	        enemyVelocity = e.getVelocity();
+	        
+	        // Predict the future position of the enemy
+	        double bulletPower = 2;
+	        double bulletSpeed = 20 - 3 * bulletPower;
+	        double predictedX = enemyX;
+	        double predictedY = enemyY;
+	        double deltaTime = 0;
+	
+	        while ((++deltaTime) * bulletSpeed < Math.hypot(predictedX - getX(), predictedY - getY())) {
+	            predictedX += Math.sin(Math.toRadians(enemyHeading)) * enemyVelocity;
+	            predictedY += Math.cos(Math.toRadians(enemyHeading)) * enemyVelocity;
+	            
+	            // Ensure prediction stays within battlefield boundaries
+	            predictedX = Math.max(Math.min(predictedX, getBattleFieldWidth() - 18), 18);
+	            predictedY = Math.max(Math.min(predictedY, getBattleFieldHeight() - 18), 18);
+	        }
+	
+	        // Aim the gun at the predicted future position of the enemy
+	        double gunTurn = Utils.normalRelativeAngleDegrees(Math.toDegrees(Math.atan2(predictedX - getX(), predictedY - getY())) - getGunHeading());
+	        setTurnGunRight(gunTurn);
+	        setFire(bulletPower);
+	
+	        // Track the enemy
+	        setTurnRight(e.getBearing());
+	        setAhead(e.getDistance() - 140);  // Maintain a distance of about 140 units
+	
+	        // Adjust radar to lock on the enemy
+	        double radarTurn = Utils.normalRelativeAngleDegrees(enemyBearing - getRadarHeading());
+	        setTurnRadarRight(radarTurn);
 
-			// define o adversário a ser mapeado
-			if (trackName == null) {
-				trackName = e.getName();
-				out.println("Tracking " + trackName);
-			}
+		} // fecha OFENSIVA TRACKER.
 
-			// adversário definido, contador ZERA
-			count = 0;
+	} // fecha método onScannedRobot.
 
-			// APROXIME-SE caso o adversário esteja muito longe
-			if (e.getDistance() > 150) {
-				gunTurnAmt = (e.getBearing() + (getHeading() - getRadarHeading()));
 
-				turnGunRight(gunTurnAmt);
-				turnRight(e.getBearing());
-				ahead(e.getDistance() - 140);
-				return;
-			}
-
-			// adversário próximo
-			gunTurnAmt = (e.getBearing() + (getHeading() - getRadarHeading()));
-			turnGunRight(gunTurnAmt);
-			fire(3);
-
-			// AFASTE-SE caso o adversário esteja muito perto
-			if (e.getDistance() < 100) {
-				if (e.getBearing() > -90 && e.getBearing() <= 90) {
-					back(40);
-				} else {
-					ahead(40);
-				}
-			}
-
-			scan();
-
-		} // fecha OFENSIVA
-
-	}
 
 	/**
 	 * onHitRobot:  Set him as our new target
@@ -183,47 +181,84 @@ public class godofredo extends Robot
 	public void onHitRobot(HitRobotEvent e) {
 
 		/**
-		 *    OFENSIVA
-		 */
-		if (ofensiva) {
-			// imprime apenas se já não for o adversário sendo mapeado
-			if (trackName != null && !trackName.equals(e.getName())) {
-				out.println("MAPEANDO " + e.getName() + " POR CONTA DE COLISÃO");
+		*    DEFENSIVA : COUNTER CLOCKWISE WALLS!
+		*/
+		if (!ofensiva) { // WALLS!
+
+			if (e.getBearing() > -90 && e.getBearing() < 90) {
+						// se o bot estiver na frente do GODOFREDO:
+				back(100);
 			}
+			else {
+				// se não...
+				ahead(100);
+			}	
 
-			// escolhe adversário a ser mapeado
-			trackName = e.getName();
+		} // fecha DEFENSIVA WALLS.
 
-			// AFASTE-SE (radar inativo)
-			gunTurnAmt = (e.getBearing() + (getHeading() - getRadarHeading()));
-			turnGunRight(gunTurnAmt);
-			fire(3);
-			back(50);
-		}
+	} // fecha método onHitRobot.
 
-	}
+
 
 	/**
-	 * onHitByBullet: What to do when you're hit by a bullet
+	 * onHitByBullet: comportamento do GODOFREDO ao ser atingido por uma bala.
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
-		// ??????????????????????????????????
-	}
+
+		/**
+		*    OFENSIVA: ADVENCED TRACKER BOT!
+		*/
+		if (ofensiva) { // TRACKER!
+		
+	        // Move perpendicularly to the bullet's direction
+	        setTurnRight(normalizeBearing(e.getBearing() + 90));
+	        setAhead(100);
+
+		} // fecha OFENSIVA TRACKER.
+
+	} // fecha método onHitByBullet.
 	
-	/**
-	 * onHitWall: What to do when you hit a wall
-	 */
-	public void onHitWall(HitWallEvent e) {
-		// ???????????????????????????????????
-	}
+
 
 	/**
-	 * onWin:  Do a victory dance
+	 * onHitWall: comportamento do GODOFREDO ao bater contra a parede.
+	 */
+	public void onHitWall(HitWallEvent e) {
+
+		/**
+		*    OFENSIVA: ADVENCED TRACKER BOT!
+		*/
+		if (ofensiva) { // TRACKER!
+		
+	        // Move away from the wall
+	        setTurnRight(normalizeBearing(180 - getHeading()));
+	        setAhead(100);
+
+		} // fecha OFENSIVA TRACKER.
+
+	} // fecha método onHitWall.
+
+
+
+	/**
+	 * onWin: GODOFREDO dança ao vencer.
 	 */
 	public void onWin(WinEvent e) {
-		for (int i = 0; i < 50; i++) {
-			turnRight(30);
-			turnLeft(30);
+		
+		for (int i = 0; i < 200; i++) {
+			turnRight(40);
+			turnLeft(40);
 		}
-	}
-}
+		
+	} // fecha método onWin.
+	
+    /**
+     * Helper method to normalize a bearing to between +180 and -180
+     */
+    double normalizeBearing(double angle) {
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
+        return angle;
+    }
+	
+} // fecha classe SUPERGODOFREDO

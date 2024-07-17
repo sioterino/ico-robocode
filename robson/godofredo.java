@@ -8,7 +8,7 @@ import java.awt.Color;
 /**
  * ROBSON GODOFREDO EUGÊNIO - walls defensivo / tracker ofensivo bot por:
  * 												   INGRIDY, SANT e SOFIA.
- * 
+ *
  * ROBSON = filho da glória ilustre (germanico).
  * GODOFREDO = deus da paz (germanico).
  * EUGÊNIO = nobre (grego/latino).
@@ -19,18 +19,18 @@ public class godofredo extends AdvancedRobot {
 
 	// declaração de independência *DEFENSIVA*
 	boolean check; // controle da movimentação, usado para que o robô
-				   // não vire caso haja um oponente no seu caminho.
+	// não vire caso haja um oponente no seu caminho.
 	double move;   // define quanto o robô se move.
 
 	// declaração de independência *OFENSIVA*
-    double enemyX;
-    double enemyY;
-    double enemyHeading;
-    double enemyVelocity;
+	double enemyX;
+	double enemyY;
+	double enemyHeading;
+	double enemyVelocity;
 
-    /**
-     * RUN: comportamento padrão do GODOFREDO.
-     */
+	/**
+	 * RUN: comportamento padrão do GODOFREDO.
+	 */
 	public void run() {
 
 
@@ -63,16 +63,16 @@ public class godofredo extends AdvancedRobot {
 				check = false;
 
 				// vira para a parede direita e aponta o robô para cima. 
-				turnLeft(getHeading() %90 );
+				turnLeft(getHeading() % 90);
 				// se move na medida delimitada pelo tamanho da arena
 				ahead(move);
-				
+
 				// gira a arma para ESQUERDA, depois o GODOFREDO.
 				check = true;
 				turnGunRight(90);
 				turnRight(90);
 
-				while(true) { // laço de repetição WALLS.
+				while (true) { // laço de repetição WALLS.
 					check = true;
 					ahead(move);
 					check = false;
@@ -90,7 +90,6 @@ public class godofredo extends AdvancedRobot {
 			} // fecha DEFENSIVA
 
 
-
 			/**
 			 *    OFENSIVA
 			 */
@@ -103,23 +102,22 @@ public class godofredo extends AdvancedRobot {
 				setBulletColor(Color.gray);
 				setScanColor(Color.red);
 
-		        // Set radar and gun to turn independently of the robot's body
-		        setAdjustRadarForRobotTurn(true);
-		        setAdjustGunForRobotTurn(true);
-		        
-		        // Robot main loop
-		        while (true) {
-		            // Keep turning the radar to scan for robots
-		            setTurnRadarRight(360);
-		            execute();
-		        }
-				
-			} // fecha OFENCIVA TRACKER.
-			
-		} // fecha laço de repetição RUN.
-		
-	} // fecha método RUN.
+				// Set radar and gun to turn independently of the robot's body
+				setAdjustRadarForRobotTurn(true);
+				setAdjustGunForRobotTurn(true);
 
+				// Robot main loop
+				while (true) {
+					// Keep turning the radar to scan for robots
+					setTurnRadarRight(360);
+					execute();
+				}
+
+			} // fecha OFENCIVA TRACKER.
+
+		} // fecha laço de repetição RUN.
+
+	} // fecha método RUN.
 
 
 	/**
@@ -127,12 +125,33 @@ public class godofredo extends AdvancedRobot {
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 
+		double bulletPower = 2;
+		System.out.println("Bullet Power: " + bulletPower);
+
+
+		// Determina a força do tiro baseando-se na energia disponível
+		if (getEnergy() < 20) {
+			bulletPower = 2;
+
+			// Retorna o valor da energia empregada no tiro
+			System.out.println("Bullet Power: " + bulletPower);
+
+			if (20 > getEnergy()) {
+				bulletPower = 1;
+
+				// Retorna o valor da energia empregada no tiro
+				System.out.println("Bullet Power: " + bulletPower);
+
+			}
+		}
+
 		/**
-		*    DEFENSIVA : COUNTER CLOCKWISE WALLS!
-		*/
+		 *    DEFENSIVA : COUNTER CLOCKWISE WALLS!
+		 */
+
 		if (!ofensiva) { // WALLS!
 
-			fire(2);
+			fire(bulletPower);
 			// caso exista um bot na próxima parede, impede o
 			// movimendo do GODOFREDO até que esse bot se mova.
 			if (check) {
@@ -142,51 +161,49 @@ public class godofredo extends AdvancedRobot {
 		} // fecha DEFENSIVA WALLS.
 
 
-
 		/**
-		*    OFENSIVA: ADVENCED TRACKER BOT!
-		*/
+		 *    OFENSIVA: ADVENCED TRACKER BOT!
+		 */
 		if (ofensiva) { // TRACKER!
 
 			// Calculate enemy's position
-	        double enemyBearing = getHeading() + e.getBearing();
-	        enemyX = getX() + e.getDistance() * Math.sin(Math.toRadians(enemyBearing));
-	        enemyY = getY() + e.getDistance() * Math.cos(Math.toRadians(enemyBearing));
-	        enemyHeading = e.getHeading();
-	        enemyVelocity = e.getVelocity();
-	        
-	        // Predict the future position of the enemy
-	        double bulletPower = 2;
-	        double bulletSpeed = 20 - 3 * bulletPower;
-	        double predictedX = enemyX;
-	        double predictedY = enemyY;
-	        double deltaTime = 0;
-	
-	        while ((++deltaTime) * bulletSpeed < Math.hypot(predictedX - getX(), predictedY - getY())) {
-	            predictedX += Math.sin(Math.toRadians(enemyHeading)) * enemyVelocity;
-	            predictedY += Math.cos(Math.toRadians(enemyHeading)) * enemyVelocity;
-	            
-	            // Ensure prediction stays within battlefield boundaries
-	            predictedX = Math.max(Math.min(predictedX, getBattleFieldWidth() - 18), 18);
-	            predictedY = Math.max(Math.min(predictedY, getBattleFieldHeight() - 18), 18);
-	        }
-	
-	        // Aim the gun at the predicted future position of the enemy
-	        double gunTurn = Utils.normalRelativeAngleDegrees(Math.toDegrees(Math.atan2(predictedX - getX(), predictedY - getY())) - getGunHeading());
-	        setTurnGunRight(gunTurn);
-	        setFire(bulletPower);
-	
-	        // Track the enemy
-	        setTurnRight(e.getBearing());
-	        setAhead(e.getDistance() - 140);  // Maintain a distance of about 140 units
-	
-	        // Adjust radar to lock on the enemy
-	        double radarTurn = Utils.normalRelativeAngleDegrees(enemyBearing - getRadarHeading());
-	        setTurnRadarRight(radarTurn);
+			double enemyBearing = getHeading() + e.getBearing();
+			enemyX = getX() + e.getDistance() * Math.sin(Math.toRadians(enemyBearing));
+			enemyY = getY() + e.getDistance() * Math.cos(Math.toRadians(enemyBearing));
+			enemyHeading = e.getHeading();
+			enemyVelocity = e.getVelocity();
+
+			// Predict the future position of the enemy
+			double bulletSpeed = 20 - 3 * bulletPower;
+			double predictedX = enemyX;
+			double predictedY = enemyY;
+			double deltaTime = 0;
+
+			while ((++deltaTime) * bulletSpeed < Math.hypot(predictedX - getX(), predictedY - getY())) {
+				predictedX += Math.sin(Math.toRadians(enemyHeading)) * enemyVelocity;
+				predictedY += Math.cos(Math.toRadians(enemyHeading)) * enemyVelocity;
+
+				// Ensure prediction stays within battlefield boundaries
+				predictedX = Math.max(Math.min(predictedX, getBattleFieldWidth() - 18), 18);
+				predictedY = Math.max(Math.min(predictedY, getBattleFieldHeight() - 18), 18);
+			}
+
+			// Aim the gun at the predicted future position of the enemy
+			double gunTurn = Utils.normalRelativeAngleDegrees(Math.toDegrees(Math.atan2(predictedX - getX(), predictedY - getY())) - getGunHeading());
+			setTurnGunRight(gunTurn);
+			setFire(bulletPower);
+
+			// Track the enemy
+			setTurnRight(e.getBearing());
+			setAhead(e.getDistance() - 140);  // Maintain a distance of about 140 units
+
+			// Adjust radar to lock on the enemy
+			double radarTurn = Utils.normalRelativeAngleDegrees(enemyBearing - getRadarHeading());
+			setTurnRadarRight(radarTurn);
 
 		} // fecha OFENSIVA TRACKER.
 
-	} // fecha método onScannedRobot.
+	}// fecha método onScannedRobot.
 
 
 
@@ -196,18 +213,18 @@ public class godofredo extends AdvancedRobot {
 	public void onHitRobot(HitRobotEvent e) {
 
 		/**
-		*    DEFENSIVA : COUNTER CLOCKWISE WALLS!
-		*/
+		 *    DEFENSIVA : COUNTER CLOCKWISE WALLS!
+		 */
 		if (!ofensiva) { // WALLS!
 
 			if (e.getBearing() > -90 && e.getBearing() < 90) {
-						// se o bot estiver na frente do GODOFREDO:
+				// se o bot estiver na frente do GODOFREDO:
 				back(100);
 			}
 			else {
 				// se não...
 				ahead(100);
-			}	
+			}
 
 		} // fecha DEFENSIVA WALLS.
 
@@ -221,18 +238,18 @@ public class godofredo extends AdvancedRobot {
 	public void onHitByBullet(HitByBulletEvent e) {
 
 		/**
-		*    OFENSIVA: ADVENCED TRACKER BOT!
-		*/
+		 *    OFENSIVA: ADVENCED TRACKER BOT!
+		 */
 		if (ofensiva) { // TRACKER!
-		
-	        // Move perpendicularly to the bullet's direction
-	        setTurnRight(normalizeBearing(e.getBearing() + 90));
-	        setAhead(100);
+
+			// Move perpendicularly to the bullet's direction
+			setTurnRight(normalizeBearing(e.getBearing() + 90));
+			setAhead(100);
 
 		} // fecha OFENSIVA TRACKER.
 
 	} // fecha método onHitByBullet.
-	
+
 
 
 	/**
@@ -241,13 +258,13 @@ public class godofredo extends AdvancedRobot {
 	public void onHitWall(HitWallEvent e) {
 
 		/**
-		*    OFENSIVA: ADVENCED TRACKER BOT!
-		*/
+		 *    OFENSIVA: ADVENCED TRACKER BOT!
+		 */
 		if (ofensiva) { // TRACKER!
-		
-	        // Move away from the wall
-	        setTurnRight(normalizeBearing(180 - getHeading()));
-	        setAhead(100);
+
+			// Move away from the wall
+			setTurnRight(normalizeBearing(180 - getHeading()));
+			setAhead(100);
 
 		} // fecha OFENSIVA TRACKER.
 
@@ -259,21 +276,21 @@ public class godofredo extends AdvancedRobot {
 	 * onWin: GODOFREDO dança ao vencer.
 	 */
 	public void onWin(WinEvent e) {
-		
+
 		for (int i = 0; i < 200; i++) {
 			turnRight(40);
 			turnLeft(40);
 		}
-		
+
 	} // fecha método onWin.
-	
-    /**
-     * Helper method to normalize a bearing to between +180 and -180
-     */
-    double normalizeBearing(double angle) {
-        while (angle > 180) angle -= 360;
-        while (angle < -180) angle += 360;
-        return angle;
-    }
-	
+
+	/**
+	 * Helper method to normalize a bearing to between +180 and -180
+	 */
+	double normalizeBearing(double angle) {
+		while (angle > 180) angle -= 360;
+		while (angle < -180) angle += 360;
+		return angle;
+	}
+
 } // fecha classe SUPERGODOFREDO

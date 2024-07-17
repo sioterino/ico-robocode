@@ -33,6 +33,14 @@ public class godofredo extends AdvancedRobot {
      */
 	public void run() {
 
+
+		// Set colors
+		setBodyColor(Color.cyan);
+		setGunColor(Color.lightGray);
+		setRadarColor(Color.pink);
+		setBulletColor(Color.white);
+		setScanColor(Color.blue);
+
 		while (true) { // abre laço de repetição RUN.
 
 			// TESTANDO quantos adversários ainda estão na arena.
@@ -87,6 +95,13 @@ public class godofredo extends AdvancedRobot {
 			 *    OFENSIVA
 			 */
 			if (ofensiva) { // TRACKER!
+		
+				// Set colors
+				setBodyColor(Color.black);
+				setGunColor(Color.red);
+				setRadarColor(Color.orange);
+				setBulletColor(Color.gray);
+				setScanColor(Color.red);
 
 		        // Set radar and gun to turn independently of the robot's body
 		        setAdjustRadarForRobotTurn(true);
